@@ -89,3 +89,64 @@ def test_filepath_action(request):
         mock_error.assert_called_once_with(
             "Filepath does not exist: {}".format(abs_fake_dir)
         )
+
+
+def test_multi_subparse_action():
+    subparser = argparse.ArgumentParser()
+    subparser.add_argument("--one", type=int)
+    subparser.add_argument("--two", type=int)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--subparsers",
+        action=actions.multi_subparse_action({"--SUB": subparser}),
+        nargs=argparse.REMAINDER,
+    )
+
+    args = parser.parse_args(
+        [
+            "--subparsers",
+            "--SUB",
+            "--one",
+            "1",
+            "--two",
+            "2",
+            "--SUB",
+            "--one",
+            "3",
+            "--two",
+            "4",
+        ]
+    )
+    assert len(args.subparsers) == 2
+    assert args.subparsers == [
+        {"one": 1, "two": 2, "subcommand": "--SUB"},
+        {"one": 3, "two": 4, "subcommand": "--SUB"},
+    ]
+
+    # Providing additional_args for each subparser
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--subparsers",
+        action=actions.multi_subparse_action(
+            {"--SUB": subparser}, additional_args={"--SUB": ["--two", "5"]}
+        ),
+        nargs=argparse.REMAINDER,
+    )
+
+    args = parser.parse_args(
+        [
+            "--subparsers",
+            "--SUB",
+            "--one",
+            "1",
+            "--SUB",
+            "--one",
+            "3",
+        ]
+    )
+    assert len(args.subparsers) == 2
+    assert args.subparsers == [
+        {"one": 1, "two": 5, "subcommand": "--SUB"},
+        {"one": 3, "two": 5, "subcommand": "--SUB"},
+    ]

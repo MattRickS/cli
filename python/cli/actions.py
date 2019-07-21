@@ -112,7 +112,41 @@ def filepath_action(exists=False):
     return FilepathAction
 
 
-def multi_parse_action(parser_mapping, additional_args=None):
+def multi_subparse_action(parser_mapping, additional_args=None):
+    """
+    Allows parsing multiple commands from a single list of arguments. Much like
+    a regular subparser, it's a requirement for the argument to use
+    nargs=argparse.REMAINDER. Unlike subparser, subcommands must be provided to
+    the initial subparser argument for anything to be processed.
+
+    Multiple subcommands can be provided mapped to the parser to use on each
+    argument list.
+
+    Parsed results are stored as a list of dictionaries, each dictionary
+    containing the parsed keys and an additional key "subcommand" mapped to the
+    name of the subcommand used parsed. The order of the dictionaries matches
+    the order the arguments were provided in.
+
+    Examples:
+        >>> subparser = argparse.ArgumentParser()
+        >>> subparser.add_argument("value", type=int, nargs=argparse.REMAINDER)
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument("--subparsers", action=multi_subparse_action({"--cmd": subparser}))
+        >>> args = parser.parse_args(["--subparsers", "--cmd", "1", "--cmd", "2"])
+        >>> args.cmd
+        [{"subcommand": "cmd", "value": 1}, {"subcommand": "cmd", "value": 2}]
+
+    Args:
+        parser_mapping (dict[str, argparse.ArgumentParser]): Dictionary mapping
+            command names to the ArgumentParser to use on each usage of the command
+        additional_args (dict[str, list]): Dictionary mapping command names to a
+            list of arguments to apply to all parsers
+
+    Returns:
+        argparse.Action
+    """
+    additional_args = additional_args or {}
+
     class MultiParseAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
 
@@ -128,13 +162,13 @@ def multi_parse_action(parser_mapping, additional_args=None):
                 elif cmd is None:
                     parser.error("Missing command")
 
-                if additional_args:
-                    arg_list.extend(additional_args)
+                if cmd in additional_args:
+                    arg_list.extend(additional_args[cmd])
 
                 subparser = parser_mapping[cmd]
                 namespace = subparser.parse_args(arg_list)
                 dct = vars(namespace)
-                dct["type"] = cmd
+                dct["subcommand"] = cmd
                 namespaces.append(dct)
 
             setattr(args, self.dest, namespaces)
