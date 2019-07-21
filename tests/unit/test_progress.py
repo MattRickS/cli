@@ -12,7 +12,6 @@ def test_progress(mock_write):
 
     cli_progress.start_progress(total, name=name)
     output = mock_write.call_args[0][0]
-    #     123456789012345678901234567890123456789012345678901234567890123456789012345678901
     assert output == (
         "\rTest [                                                                 ]   0/100"
     )
