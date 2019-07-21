@@ -22,9 +22,9 @@ class Progress(object):
         # Must use a minimum of 1 as formatting will fail with 0
         pad_name = max(1, self._name_padding or len(self.name))
         pad_num = self._number_padding or len(str(self.total))
-        # pad_num is doubled for the number and total, 3 added for number
-        # separator and spaces between name and bars
-        pad_bar = self.MAX_LENGTH - (pad_name + pad_num * 2 + 3)
+        # pad_num is doubled for the number and total, 5 added for number
+        # separator, spaces between name and bars, and the brackets on the progress
+        pad_bar = self.MAX_LENGTH - (pad_name + pad_num * 2 + 5)
         sys.stdout.write(
             "\r{name:{pad_name}.{pad_name}} [{bars:{pad_bar}}] {progress:>{pad_num}}/{total}".format(
                 name=self.name,
@@ -43,31 +43,3 @@ class Progress(object):
         self.name = ""
         self.total = 0
         sys.stdout.write("\n")
-
-
-def main():
-    import time
-
-    progress = Progress(number_padding=3)
-
-    progress.start_progress(100, name="Some process")
-    for i in range(100):
-        time.sleep(0.05)
-        progress.print_progress(i)
-    progress.finish_progress()
-
-    progress.start_progress(10, name="Some other process")
-    for i in range(10):
-        time.sleep(0.1)
-        progress.print_progress(i)
-    progress.finish_progress()
-
-    progress.start_progress(10)
-    for i in range(10):
-        time.sleep(0.1)
-        progress.print_progress(i)
-    progress.finish_progress()
-
-
-if __name__ == "__main__":
-    main()
