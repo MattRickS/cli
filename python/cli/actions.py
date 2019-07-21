@@ -150,6 +150,8 @@ def multi_subparse_action(parser_mapping, additional_args=None):
     additional_args = additional_args or {}
 
     class MultiParseAction(argparse.Action):
+        KEY_SUBCOMMAND = "subcommand"
+
         def __call__(self, parser, args, values, option_string=None):
 
             cmd = None
@@ -170,7 +172,7 @@ def multi_subparse_action(parser_mapping, additional_args=None):
                 subparser = parser_mapping[cmd]
                 namespace = subparser.parse_args(arg_list)
                 dct = vars(namespace)
-                dct["subcommand"] = cmd
+                dct[self.KEY_SUBCOMMAND] = cmd
                 namespaces.append(dct)
 
             setattr(args, self.dest, namespaces)
