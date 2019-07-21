@@ -31,7 +31,8 @@ def chunks_action(n):
 
 def colour_action(alpha=True, integers=False):
     """
-    Action which generates a 3 (rgb) or 4 (rgba) index list representing a colour
+    Action which generates a 3 (rgb) or 4 (rgba) index list representing a colour.
+    This action requires type to be set to float or int and nargs to be "+"
 
     Examples:
         >>> parser = argparse.ArgumentParser()
@@ -66,7 +67,7 @@ def colour_action(alpha=True, integers=False):
                     "Invalid number of arguments for {}, must be 1 (constant), "
                     "3 (rgb) or 4 (rgba)".format(self.dest)
                 )
-            else:
+            elif not alpha:
                 parser.error(
                     "Invalid number of arguments for {}, must be 1 (constant) "
                     "or 3 (rgb)".format(self.dest)
