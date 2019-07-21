@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import mock
 
@@ -66,3 +67,25 @@ def test_colour_action():
 
     args = parser.parse_args(["128", "200", "255"])
     assert args.colour == [128, 200, 255, 255]
+
+
+def test_filepath_action(request):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", action=actions.filepath_action())
+
+    args = parser.parse_args(["."])
+    assert args.path == str(request.fspath.join("../"))
+
+    fake_dir = "/not/a/directory"
+    abs_fake_dir = os.path.abspath("/not/a/directory")
+
+    args = parser.parse_args([fake_dir])
+    assert args.path == abs_fake_dir
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", action=actions.filepath_action(exists=True))
+    with mock.patch.object(parser, "error") as mock_error:
+        parser.parse_args([fake_dir])
+        mock_error.assert_called_once_with(
+            "Filepath does not exist: {}".format(abs_fake_dir)
+        )
