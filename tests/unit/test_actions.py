@@ -69,12 +69,12 @@ def test_colour_action():
     assert args.colour == [128, 200, 255, 255]
 
 
-def test_filepath_action(request):
+def test_filepath_action():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", action=actions.filepath_action())
 
     args = parser.parse_args(["."])
-    assert args.path == str(request.fspath.join("../"))
+    assert args.path == os.getcwd()
 
     fake_dir = "/not/a/directory"
     abs_fake_dir = os.path.abspath("/not/a/directory")
