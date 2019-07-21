@@ -3,6 +3,7 @@ import sys
 
 class Progress(object):
     MAX_LENGTH = 80
+    MIN_BAR_LENGTH = 40
     SYMBOL = "="
 
     def __init__(self, name_padding=None, number_padding=None):
@@ -19,9 +20,13 @@ class Progress(object):
         self.print_progress(0)
 
     def print_progress(self, value):
-        # Must use a minimum of 1 as formatting will fail with 0
-        pad_name = max(1, self._name_padding or len(self.name))
         pad_num = self._number_padding or len(str(self.total))
+        # Must use a minimum of 1 as formatting will fail with 0, and a maximum
+        # that preserves minimum bar and number padding
+        pad_name = min(
+            (self.MAX_LENGTH - self.MIN_BAR_LENGTH) - pad_num,
+            max(1, self._name_padding or len(self.name)),
+        )
         # pad_num is doubled for the number and total, 5 added for number
         # separator, spaces between name and bars, and the brackets on the progress
         pad_bar = self.MAX_LENGTH - (pad_name + pad_num * 2 + 5)
