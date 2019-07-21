@@ -18,6 +18,7 @@ def chunks_action(n):
     Returns:
         argparse.Action
     """
+
     class ChunksAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
             if len(values) % n != 0:
@@ -100,6 +101,7 @@ def filepath_action(exists=False):
     Returns:
         argparse.Action
     """
+
     class FilepathAction(argparse.Action):
         def __call__(self, parser, args, values, option_string=None):
             values = os.path.abspath(values)

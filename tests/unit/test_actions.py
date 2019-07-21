@@ -135,15 +135,7 @@ def test_multi_subparse_action():
     )
 
     args = parser.parse_args(
-        [
-            "--subparsers",
-            "--SUB",
-            "--one",
-            "1",
-            "--SUB",
-            "--one",
-            "3",
-        ]
+        ["--subparsers", "--SUB", "--one", "1", "--SUB", "--one", "3"]
     )
     assert len(args.subparsers) == 2
     assert args.subparsers == [
